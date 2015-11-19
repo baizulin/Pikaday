@@ -416,7 +416,7 @@
         var self = this,
             opts = self.config(options);
 
-        self._onMouseDown = function(e)
+        self._onClick = function(e)
         {
             if (!self._v) {
                 return;
@@ -426,6 +426,7 @@
             if (!target) {
                 return;
             }
+            e.stopPropagation();
 
             if (!hasClass(target, 'is-disabled')) {
                 if (hasClass(target, 'pika-button') && !hasClass(target, 'is-empty')) {
@@ -525,7 +526,7 @@
             self._c = false;
         };
 
-        self._onClick = function(e)
+        self._onAnywhereClick = function(e)
         {
             e = e || window.event;
             var target = e.target || e.srcElement,
@@ -553,8 +554,8 @@
         self.el = document.createElement('div');
         self.el.className = 'pika-single' + (opts.isRTL ? ' is-rtl' : '') + (opts.theme ? ' ' + opts.theme : '');
 
-        addEvent(self.el, 'mousedown', self._onMouseDown, true);
-        addEvent(self.el, 'touchend', self._onMouseDown, true);
+        addEvent(self.el, 'click', self._onClick, true);
+        addEvent(self.el, 'touch', self._onClick, true);
         addEvent(self.el, 'change', self._onChange);
 
         if (opts.field) {
@@ -1060,7 +1061,7 @@
                 this._v = true;
                 this.draw();
                 if (this._o.bound) {
-                    addEvent(document, 'click', this._onClick);
+                    addEvent(document, 'click', this._onAnywhereClick);
                     this.adjustPosition();
                 }
                 if (typeof this._o.onOpen === 'function') {
@@ -1074,7 +1075,7 @@
             var v = this._v;
             if (v !== false) {
                 if (this._o.bound) {
-                    removeEvent(document, 'click', this._onClick);
+                    removeEvent(document, 'click', this._onAnywhereClick);
                 }
                 this.el.style.position = 'static'; // reset
                 this.el.style.left = 'auto';
@@ -1093,8 +1094,8 @@
         destroy: function()
         {
             this.hide();
-            removeEvent(this.el, 'mousedown', this._onMouseDown, true);
-            removeEvent(this.el, 'touchend', this._onMouseDown, true);
+            removeEvent(this.el, 'click', this._onClick, true);
+            removeEvent(this.el, 'touch', this._onClick, true);
             removeEvent(this.el, 'change', this._onChange);
             if (this._o.field) {
                 removeEvent(this._o.field, 'change', this._onInputChange);
