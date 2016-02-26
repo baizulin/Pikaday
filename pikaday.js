@@ -499,7 +499,12 @@
 
         self._onInputFocus = function()
         {
-            self.show();
+            if (self.isVisible()) {
+                self.hide();
+            }
+            else {
+                self.show();
+            }
         };
 
         self._onInputClick = function()
