@@ -183,6 +183,8 @@
         // automatically show/hide the picker on `field` focus (default `true` if `field` is set)
         bound: undefined,
 
+        preloaderTemplate: "<div class='loading'></div>",
+
         // position of the datepicker, relative to the field (default to bottom & left)
         // ('bottom' & 'left' keywords are not used, 'top' & 'right' are modifier on the bottom/left position)
         position: 'bottom left',
@@ -259,6 +261,7 @@
         theme: null,
 
         // callback function
+        onBeforeRenderFn: null,
         onSelect: null,
         onOpen: null,
         onClose: null,
@@ -867,6 +870,27 @@
             this._o.endRange = value;
         },
 
+        beforeRender: function()
+        {
+            if(typeof this._o.onBeforeRenderFn === 'function') {
+                this.el.innerHTML = this._o.preloaderTemplate;
+                this._o.onBeforeRenderFn.apply(this, []);
+            } else {
+                this.continueRender();
+            }
+
+        },
+
+        continueRender: function(){
+            var html = "";
+            for (var c = 0; c < this._o.numberOfMonths; c++) {
+                html += '<div class="pika-lendar">' + renderTitle(this, c, this.calendars[c].year, this.calendars[c].month, this.calendars[0].year) + this.render(this.calendars[c].year, this.calendars[c].month) + '</div>';
+            }
+            this.el.innerHTML = html;
+        },
+
+
+
         /**
          * refresh the HTML
          */
@@ -879,8 +903,7 @@
                 minYear = opts.minYear,
                 maxYear = opts.maxYear,
                 minMonth = opts.minMonth,
-                maxMonth = opts.maxMonth,
-                html = '';
+                maxMonth = opts.maxMonth;
 
             if (this._y <= minYear) {
                 this._y = minYear;
@@ -895,11 +918,7 @@
                 }
             }
 
-            for (var c = 0; c < opts.numberOfMonths; c++) {
-                html += '<div class="pika-lendar">' + renderTitle(this, c, this.calendars[c].year, this.calendars[c].month, this.calendars[0].year) + this.render(this.calendars[c].year, this.calendars[c].month) + '</div>';
-            }
-
-            this.el.innerHTML = html;
+            this.beforeRender();
 
             if (opts.bound) {
                 if(opts.field.type !== 'hidden') {
